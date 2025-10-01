@@ -1,10 +1,11 @@
-// @ts-ignore
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-type Params = { params: { id: string } };
-
-export async function GET(req: Request, { params }: Params) {
+// GET /api/actions/[id]
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const action = await prisma.action.findUnique({
     where: { id: params.id },
     include: { employees: true, recurrence: true },
@@ -17,8 +18,13 @@ export async function GET(req: Request, { params }: Params) {
   return NextResponse.json(action);
 }
 
-export async function PUT(req: Request, { params }: Params) {
+// PUT /api/actions/[id]
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const body = await req.json();
+
   const action = await prisma.action.update({
     where: { id: params.id },
     data: body,
@@ -27,7 +33,14 @@ export async function PUT(req: Request, { params }: Params) {
   return NextResponse.json(action);
 }
 
-export async function DELETE(req: Request, { params }: Params) {
-  await prisma.action.delete({ where: { id: params.id } });
+// DELETE /api/actions/[id]
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  await prisma.action.delete({
+    where: { id: params.id },
+  });
+
   return NextResponse.json({ success: true });
 }
