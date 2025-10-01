@@ -4,10 +4,12 @@ import { NextRequest, NextResponse } from "next/server";
 // GET /api/actions/[id]
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+
   const action = await prisma.action.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: { employees: true, recurrence: true },
   });
 
@@ -21,12 +23,13 @@ export async function GET(
 // PUT /api/actions/[id]
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const body = await req.json();
 
   const action = await prisma.action.update({
-    where: { id: params.id },
+    where: { id },
     data: body,
   });
 
@@ -36,10 +39,12 @@ export async function PUT(
 // DELETE /api/actions/[id]
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+
   await prisma.action.delete({
-    where: { id: params.id },
+    where: { id },
   });
 
   return NextResponse.json({ success: true });

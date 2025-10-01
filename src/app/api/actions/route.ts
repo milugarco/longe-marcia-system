@@ -1,4 +1,3 @@
-// @ts-expect-error
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 

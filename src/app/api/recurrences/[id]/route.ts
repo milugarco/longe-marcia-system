@@ -1,12 +1,15 @@
-// @ts-expect-error
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-type Params = { params: { id: string } };
+// GET - Detalhe recorrência
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
 
-export async function GET(req: Request, { params }: Params) {
   const recurrence = await prisma.recurrence.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: { actions: true },
   });
 
@@ -20,17 +23,32 @@ export async function GET(req: Request, { params }: Params) {
   return NextResponse.json(recurrence);
 }
 
-export async function PUT(req: Request, { params }: Params) {
+// PUT - Atualiza recorrência
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
   const body = await req.json();
+
   const recurrence = await prisma.recurrence.update({
-    where: { id: params.id },
+    where: { id },
     data: body,
   });
 
   return NextResponse.json(recurrence);
 }
 
-export async function DELETE(req: Request, { params }: Params) {
-  await prisma.recurrence.delete({ where: { id: params.id } });
+// DELETE - Remove recorrência
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+
+  await prisma.recurrence.delete({
+    where: { id },
+  });
+
   return NextResponse.json({ success: true });
 }

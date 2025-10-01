@@ -1,13 +1,15 @@
-// @ts-expect-error
 import { prisma } from "@/lib/prisma";
-import { NextResponse } from "next/server";
-
-type Params = { params: { id: string } };
+import { NextRequest, NextResponse } from "next/server";
 
 // GET - Detalhe funcionário
-export async function GET(req: Request, { params }: Params) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+
   const employee = await prisma.employee.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: { sections: true, actions: true },
   });
 
@@ -22,10 +24,15 @@ export async function GET(req: Request, { params }: Params) {
 }
 
 // PUT - Atualiza funcionário
-export async function PUT(req: Request, { params }: Params) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
   const body = await req.json();
+
   const employee = await prisma.employee.update({
-    where: { id: params.id },
+    where: { id },
     data: body,
   });
 
@@ -33,7 +40,15 @@ export async function PUT(req: Request, { params }: Params) {
 }
 
 // DELETE - Remove funcionário
-export async function DELETE(req: Request, { params }: Params) {
-  await prisma.employee.delete({ where: { id: params.id } });
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+
+  await prisma.employee.delete({
+    where: { id },
+  });
+
   return NextResponse.json({ success: true });
 }
