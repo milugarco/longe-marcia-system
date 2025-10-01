@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: longe-marcia-db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: longe_marcia
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - longe_marcia-network
+
+volumes:
+  postgres_data:
+
+networks:
+  longe_marcia-network:
+    driver: bridge
