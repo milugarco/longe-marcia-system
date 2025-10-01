@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Trash2 } from "lucide-react";
+import { ActionStatus } from "@prisma/client";
 
 export default function DashboardHome() {
   const { data: session } = useSession();
@@ -41,6 +42,7 @@ export default function DashboardHome() {
     open: boolean;
     id?: string;
     title?: string;
+    status?: ActionStatus;
   }>({ open: false });
   const [confirmModal, setConfirmModal] = useState<{
     open: boolean;
@@ -197,6 +199,14 @@ export default function DashboardHome() {
 
   const deleteRecurrence = async (id: string) => {
     await fetch(`/api/recurrences/${id}`, { method: "DELETE" });
+  };
+
+  // enums/status.ts
+  const ActionStatusLabel: Record<string, string> = {
+    PENDING: "Pendente",
+    IN_PROGRESS: "Em andamento",
+    DONE: "Finalizado",
+    DELAYED: "Atrasado",
   };
 
   // Carregar seções (igual ao seu)
@@ -373,6 +383,7 @@ export default function DashboardHome() {
               className="flex justify-between items-center p-2 bg-muted rounded"
             >
               <span>{a.title}</span>
+              <span>{ActionStatusLabel[a.status]}</span>
               <div className="flex justify-between items-center gap-2">
                 <Button
                   size="sm"
@@ -515,17 +526,42 @@ export default function DashboardHome() {
           <DialogHeader>
             <DialogTitle>Editar Tarefa</DialogTitle>
           </DialogHeader>
+
+          {/* Campo título */}
           <Input
             value={editActionModal.title}
             onChange={(e) =>
               setEditActionModal((prev) => ({ ...prev, title: e.target.value }))
             }
+            placeholder="Título da tarefa"
           />
+
+          {/* Campo status */}
+          <Select
+            value={editActionModal.status || "PENDING"}
+            onValueChange={(val) =>
+              setEditActionModal((prev: any) => ({ ...prev, status: val }))
+            }
+          >
+            <SelectTrigger className="mt-2">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="PENDING">Pendente</SelectItem>
+              <SelectItem value="IN_PROGRESS">Em andamento</SelectItem>
+              <SelectItem value="DONE">Concluído</SelectItem>
+              <SelectItem value="DELAYED">Atrasado</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Botão salvar */}
           <Button
+            className="mt-3"
             onClick={async () => {
               if (editActionModal.id) {
                 const updated = await updateAction(editActionModal.id, {
                   title: editActionModal.title,
+                  status: editActionModal.status,
                 });
                 setSelectedSection((prev: any) => ({
                   ...prev,
